@@ -1,0 +1,16 @@
+pandas
+numpy
+scikit-learn
+imbalanced-learn
+xgboost
+lightgbm
+optuna
+shap
+matplotlib
+seaborn
+joblib
+flask
+gunicorn
+pytest
+openai>=1.40.0
+python-dotenv>=1.0.0

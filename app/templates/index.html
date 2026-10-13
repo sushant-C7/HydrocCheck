@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroCheck AI | Water Quality</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #eef5f8;
+            color: #193449;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        header h1 {
+            color: #087e8b;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #607786;
+        }
+
+        .panel {
+            background: white;
+            padding: 26px;
+            border-radius: 14px;
+            box-shadow: 0 5px 22px rgba(20, 55, 75, 0.08);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd8df;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        input:focus, textarea:focus {
+            outline: 2px solid #72cbd0;
+            border-color: #087e8b;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd8df;
+            border-radius: 7px;
+            font: inherit;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #087e8b;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #066873;
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        #result {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #f5f9fb;
+            border-radius: 10px;
+            border: 1px solid #d7e5eb;
+            overflow-wrap: anywhere;
+        }
+
+        #status {
+            margin-top: 0;
+        }
+
+        .note {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #607786;
+            line-height: 1.5;
+        }
+
+        .agent-panel, .research-panel {
+            margin-top: 20px;
+        }
+
+        .agent-output {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background: #f5f9fb;
+            border: 1px solid #d7e5eb;
+            border-radius: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        #agentReply {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .trace-list li, .source-list li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .source-list a {
+            color: #087e8b;
+            overflow-wrap: anywhere;
+        }
+
+        .source-meta {
+            display: block;
+            color: #607786;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        @media (max-width: 560px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <header>
+        <h1>HydroCheck AI</h1>
+        <p>AI-powered water potability assessment</p>
+    </header>
+
+    <main class="panel">
+        <h2>Enter Water Quality Measurements</h2>
+        <p>Enter the measured values for your water sample.</p>
+
+        <form id="waterForm">
+            <div class="grid">
+                <div>
+                    <label for="ph">pH</label>
+                    <input id="ph" type="number" step="any"
+                           value="7.1" required>
+                </div>
+
+                <div>
+                    <label for="Hardness">Hardness</label>
+                    <input id="Hardness" type="number" step="any"
+                           value="190" required>
+                </div>
+
+                <div>
+                    <label for="Solids">Total Dissolved Solids</label>
+                    <input id="Solids" type="number" step="any"
+                           value="20000" required>
+                </div>
+
+                <div>
+                    <label for="Chloramines">Chloramines</label>
+                    <input id="Chloramines" type="number" step="any"
+                           value="7" required>
+                </div>
+
+                <div>
+                    <label for="Sulfate">Sulfate</label>
+                    <input id="Sulfate" type="number" step="any"
+                           value="330" required>
+                </div>
+
+                <div>
+                    <label for="Conductivity">Conductivity</label>
+                    <input id="Conductivity" type="number" step="any"
+                           value="420" required>
+                </div>
+
+                <div>
+                    <label for="Organic_carbon">Organic Carbon</label>
+                    <input id="Organic_carbon" type="number" step="any"
+                           value="14" required>
+                </div>
+
+                <div>
+                    <label for="Trihalomethanes">Trihalomethanes</label>
+                    <input id="Trihalomethanes" type="number" step="any"
+                           value="66" required>
+                </div>
+
+                <div>
+                    <label for="Turbidity">Turbidity</label>
+                    <input id="Turbidity" type="number" step="any"
+                           value="3.9" required>
+                </div>
+            </div>
+
+            <button id="submitButton" type="submit">
+                Analyze Water Sample
+            </button>
+        </form>
+
+        <section id="result" aria-live="polite">
+            <h2 id="status"></h2>
+            <p id="details"></p>
+
+            <h3 id="extraHeading"></h3>
+            <ul id="extra"></ul>
+        </section>
+
+        <p class="note">
+            This assessment is generated by a machine-learning model and
+            should not replace certified laboratory water testing. The anomaly detector flags unusual patterns; it does not determine safety by itself.
+        </p>
+    </main>
+
+    <section class="panel research-panel" aria-labelledby="researchTitle">
+        <h2 id="researchTitle">RAG Water Quality Research Assistant</h2>
+        <p>
+            Ask about drinking-water guidance, reference standards, or water-quality terms without entering a sample.
+            The retriever searches HydroCheck's local reference library and the language model summarizes the retrieved passages with source links.
+        </p>
+        <label for="researchQuestion">Your research question</label>
+        <textarea id="researchQuestion" rows="3">What does the WHO drinking-water risk-management framework recommend, and what should HydroCheck not claim?</textarea>
+        <button id="researchButton" type="button">Research with Sources</button>
+        <p class="note">
+            Retrieval is local and uses TF-IDF keyword/bigram similarity. The answer synthesis needs the OpenAI API key and may incur API charges. This feature does not search the live web.
+        </p>
+        <section id="researchResult" class="agent-output" aria-live="polite">
+            <h3 id="researchStatus">Research answer</h3>
+            <p id="researchReply"></p>
+            <section id="researchSourcesSection" style="display:none">
+                <h4>Retrieved reference sources</h4>
+                <ul id="researchSources" class="source-list"></ul>
+            </section>
+            <h4>Retrieval trace</h4>
+            <ol id="researchTrace" class="trace-list"></ol>
+        </section>
+    </section>
+
+    <section class="panel agent-panel" aria-labelledby="agentTitle">
+        <h2 id="agentTitle">HydroCheck AI Agent</h2>
+        <p>
+            Give the agent a task. It can use the local potability model, anomaly detector, training-range checker,
+            and a RAG research assistant that retrieves relevant passages from the included reference library.
+        </p>
+        <label for="agentMessage">What should the agent do?</label>
+        <textarea id="agentMessage" rows="3">Explain the drinking-water guidance relevant to this sample, cite the source documents, and explain why the model result is not a compliance certificate.</textarea>
+        <button id="agentButton" type="button">Ask HydroCheck AI Agent</button>
+        <p class="note">
+            Local TF-IDF retrieval runs on your computer. The agent uses an OpenAI API key to synthesize an answer, so API usage may incur separate charges. Retrieved sources appear below the report.
+        </p>
+
+        <section id="agentResult" class="agent-output" aria-live="polite">
+            <h3 id="agentStatus">Agent report</h3>
+            <p id="agentReply"></p>
+            <section id="agentSourcesSection" style="display:none">
+                <h4 id="sourceHeading">Retrieved reference sources</h4>
+                <ul id="agentSources" class="source-list"></ul>
+            </section>
+            <h4 id="traceHeading">Agent execution trace</h4>
+            <ol id="agentTrace" class="trace-list"></ol>
+        </section>
+    </section>
+</div>
+
+<script>
+    const form = document.getElementById("waterForm");
+    const result = document.getElementById("result");
+    const button = document.getElementById("submitButton");
+
+    const fields = [
+        "ph", "Hardness", "Solids", "Chloramines", "Sulfate",
+        "Conductivity", "Organic_carbon", "Trihalomethanes", "Turbidity"
+    ];
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const payload = {};
+
+        for (const field of fields) {
+            const value = document.getElementById(field).valueAsNumber;
+
+            if (!Number.isFinite(value)) {
+                alert("Please enter a valid number for every field.");
+                return;
+            }
+
+            payload[field] = value;
+        }
+
+        button.disabled = true;
+        button.textContent = "Analyzing...";
+        result.style.display = "block";
+        document.getElementById("status").textContent = "Processing sample...";
+        document.getElementById("details").textContent = "";
+        document.getElementById("extraHeading").textContent = "";
+        document.getElementById("extra").replaceChildren();
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "The prediction request failed.");
+            }
+
+            const status = document.getElementById("status");
+            const details = document.getElementById("details");
+            const extraHeading = document.getElementById("extraHeading");
+            const extra = document.getElementById("extra");
+
+            if (data.source === "rule_gate") {
+                status.textContent = "Water sample flagged by rule checks";
+                details.textContent =
+                    "The predefined safety checks identified a concern. Review the following reasons:";
+                extraHeading.textContent = "Reasons";
+
+                (data.reasons || []).forEach(function (reason) {
+                    const item = document.createElement("li");
+                    item.textContent = reason;
+                    extra.appendChild(item);
+                });
+            } else {
+                status.textContent = data.potable
+                    ? "Model assessment: Potable"
+                    : "Model assessment: Not potable";
+
+                details.textContent =
+                    "Predicted probability: " +
+                    (data.probability * 100).toFixed(1) + "%";
+
+                details.textContent +=
+                    " | Decision threshold: " + data.threshold;
+
+                extraHeading.textContent = "Top contributing factors";
+
+                (data.top_factors || []).forEach(function (factor) {
+                    const item = document.createElement("li");
+                    item.textContent =
+                        factor.feature + ": " + factor.shap_log_odds;
+                    extra.appendChild(item);
+                });
+            }
+
+            if (data.anomaly) {
+                extraHeading.textContent = extraHeading.textContent
+                    ? extraHeading.textContent + " and AI pattern check"
+                    : "AI pattern check";
+                const anomalyItem = document.createElement("li");
+                anomalyItem.textContent =
+                    "Isolation Forest: " + data.anomaly.label +
+                    " (score: " + data.anomaly.decision_score + "). " +
+                    "An anomaly is not proof that water is unsafe or safe.";
+                extra.appendChild(anomalyItem);
+            }
+        } catch (error) {
+            document.getElementById("status").textContent =
+                "Unable to analyze sample";
+            document.getElementById("details").textContent = error.message;
+        } finally {
+            button.disabled = false;
+            button.textContent = "Analyze Water Sample";
+        }
+    });
+
+    function renderReferenceSources(sectionId, listId, sources) {
+        const section = document.getElementById(sectionId);
+        const list = document.getElementById(listId);
+        list.replaceChildren();
+        (sources || []).forEach(function (source) {
+            const item = document.createElement("li");
+            if (source.source_url && /^https?:\/\//i.test(source.source_url)) {
+                const link = document.createElement("a");
+                link.href = source.source_url;
+                link.textContent = source.title || source.source_url;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                item.appendChild(link);
+            } else {
+                item.textContent = source.title || "Local project note";
+            }
+            const meta = document.createElement("span");
+            meta.className = "source-meta";
+            meta.textContent = [source.publisher, source.jurisdiction].filter(Boolean).join(" · ");
+            item.appendChild(meta);
+            list.appendChild(item);
+        });
+        section.style.display = (sources || []).length ? "block" : "none";
+    }
+
+    const agentButton = document.getElementById("agentButton");
+    const agentResult = document.getElementById("agentResult");
+    const agentMessage = document.getElementById("agentMessage");
+
+    agentButton.addEventListener("click", async function () {
+        const measurements = {};
+
+        for (const field of fields) {
+            const value = document.getElementById(field).valueAsNumber;
+            if (!Number.isFinite(value)) {
+                alert("Please enter a valid number for every measurement before asking the agent.");
+                return;
+            }
+            measurements[field] = value;
+        }
+
+        const message = agentMessage.value.trim();
+        if (!message) {
+            alert("Enter a task for the AI agent.");
+            return;
+        }
+
+        agentButton.disabled = true;
+        agentButton.textContent = "Agent working...";
+        agentResult.style.display = "block";
+        document.getElementById("agentStatus").textContent = "Analyzing request...";
+        document.getElementById("agentReply").textContent = "The agent is selecting and running tools.";
+        document.getElementById("agentTrace").replaceChildren();
+        document.getElementById("agentSources").replaceChildren();
+        document.getElementById("agentSourcesSection").style.display = "none";
+
+        try {
+            const response = await fetch("/agent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message, measurements: measurements })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "The agent request failed.");
+            }
+
+            document.getElementById("agentStatus").textContent = "Agent report (" + data.model + ")";
+            document.getElementById("agentReply").textContent = data.reply;
+
+            renderReferenceSources("agentSourcesSection", "agentSources", data.sources || []);
+
+            const trace = document.getElementById("agentTrace");
+            (data.tool_trace || []).forEach(function (step) {
+                const item = document.createElement("li");
+                item.textContent = step.tool + " — " + step.status + ": " + step.summary;
+                trace.appendChild(item);
+            });
+            if (!(data.tool_trace || []).length) {
+                const item = document.createElement("li");
+                item.textContent = "No tools were called for this response.";
+                trace.appendChild(item);
+            }
+        } catch (error) {
+            document.getElementById("agentStatus").textContent = "Unable to complete agent request";
+            document.getElementById("agentReply").textContent = error.message;
+            document.getElementById("agentTrace").replaceChildren();
+            document.getElementById("agentSources").replaceChildren();
+            document.getElementById("agentSourcesSection").style.display = "none";
+        } finally {
+            agentButton.disabled = false;
+            agentButton.textContent = "Ask HydroCheck AI Agent";
+        }
+    });
+
+    const researchButton = document.getElementById("researchButton");
+    researchButton.addEventListener("click", async function () {
+        const question = document.getElementById("researchQuestion").value.trim();
+        if (!question) {
+            alert("Enter a research question.");
+            return;
+        }
+        if (question.length > 1200) {
+            alert("Please keep the research question under 1,200 characters.");
+            return;
+        }
+
+        const result = document.getElementById("researchResult");
+        researchButton.disabled = true;
+        researchButton.textContent = "Researching...";
+        result.style.display = "block";
+        document.getElementById("researchStatus").textContent = "Searching reference library...";
+        document.getElementById("researchReply").textContent = "Retrieving passages and preparing a source-grounded answer.";
+        document.getElementById("researchTrace").replaceChildren();
+        renderReferenceSources("researchSourcesSection", "researchSources", []);
+
+        try {
+            const response = await fetch("/research", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: question })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "The research request failed.");
+            }
+
+            document.getElementById("researchStatus").textContent = "Research answer (" + data.model + ")";
+            document.getElementById("researchReply").textContent = data.reply;
+            renderReferenceSources("researchSourcesSection", "researchSources", data.sources || []);
+
+            const trace = document.getElementById("researchTrace");
+            (data.tool_trace || []).forEach(function (step) {
+                const item = document.createElement("li");
+                item.textContent = step.tool + " — " + step.status + ": " + step.summary;
+                trace.appendChild(item);
+            });
+            if (!(data.tool_trace || []).length) {
+                const item = document.createElement("li");
+                item.textContent = "No reference passages were retrieved.";
+                trace.appendChild(item);
+            }
+        } catch (error) {
+            document.getElementById("researchStatus").textContent = "Unable to complete research";
+            document.getElementById("researchReply").textContent = error.message;
+            document.getElementById("researchTrace").replaceChildren();
+            renderReferenceSources("researchSourcesSection", "researchSources", []);
+        } finally {
+            researchButton.disabled = false;
+            researchButton.textContent = "Research with Sources";
+        }
+    });
+
+</script>
+</body>
+</html>
